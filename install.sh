@@ -1,7 +1,7 @@
 #!/data/data/com.termux/files/usr/bin/bash
 # Termux -> Ubuntu VM + Scrapy + Playwright + FastAPI Setup
 
-# 1️⃣ Update Termux & install proot-distro
+# Update Termux & install proot-distro
 pkg update -y && pkg upgrade -y
 pkg install -y proot-distro wget tar git
 
@@ -10,7 +10,7 @@ proot-distro install ubuntu
 echo "Ubuntu siap! Masuk dengan:"
 echo "proot-distro login ubuntu"
 
-# 3️⃣ Buat script setup di Ubuntu
+# Buat script setup di Termux (host)
 cat << 'EOF' > setup_ubuntu_scraper.sh
 #!/bin/bash
 # Ubuntu VM: Install Scraper Environment
@@ -41,6 +41,12 @@ EOF
 
 chmod +x setup_ubuntu_scraper.sh
 
-echo "✅ Script setup_ubuntu_scraper.sh siap dijalankan di Ubuntu VM."
-echo "1️⃣ Masuk ke Ubuntu: proot-distro login ubuntu-$UBUNTU_VERSION"
-echo "2️⃣ Jalankan setup: ./setup_ubuntu_scraper.sh"
+# Copy script ke Ubuntu VM secara otomatis
+echo "Menyalin setup_ubuntu_scraper.sh ke Ubuntu VM..."
+proot-distro login ubuntu -- cp /data/data/com.termux/files/home/setup_ubuntu_scraper.sh /root/
+proot-distro login ubuntu -- chmod +x /root/setup_ubuntu_scraper.sh
+
+echo "✅ Script sudah disalin ke Ubuntu VM di /root/setup_ubuntu_scraper.sh"
+echo "Untuk menjalankan setup di Ubuntu, masuk ke Ubuntu lalu jalankan:"
+echo "proot-distro login ubuntu"
+echo "/root/setup_ubuntu_scraper.sh"
