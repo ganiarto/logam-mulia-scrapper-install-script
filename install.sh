@@ -43,7 +43,7 @@ chmod +x setup_ubuntu_scraper.sh
 
 # Copy script ke Ubuntu VM secara otomatis
 echo "Menyalin setup_ubuntu_scraper.sh ke Ubuntu VM..."
-proot-distro login ubuntu -- cp /data/data/com.termux/files/home/setup_ubuntu_scraper.sh /root/
+proot-distro login ubuntu -- cp /data/data/com.termux/files/home/logam-mulia-scrapper-install-script/setup_ubuntu_scraper.sh /root/
 proot-distro login ubuntu -- chmod +x /root/setup_ubuntu_scraper.sh
 
 echo "✅ Script sudah disalin ke Ubuntu VM di /root/setup_ubuntu_scraper.sh"
