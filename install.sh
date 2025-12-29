@@ -1,59 +1,65 @@
-#!/bin/bash
-# Ubuntu VM: Install Scraper Environment
+#!/data/data/com.termux/files/usr/bin/bash
 
-echo "Mengupdate sistem..."
+# 1. Update Termux dan Install proot-distro
+echo "Mengupdate Termux..."
+pkg update -y && pkg upgrade -y
+pkg install -y proot-distro git
+
+# 2. Install Ubuntu (jika belum ada)
+if [ ! -d "$PREFIX/var/lib/proot-distro/installed-rootfs/ubuntu" ]; then
+    echo "Menginstal Ubuntu VM..."
+    proot-distro install ubuntu
+fi
+
+# 3. Membuat script "setup_didalam_ubuntu.sh" secara otomatis
+cat << 'EOF' > setup_ubuntu_internal.sh
+#!/bin/bash
+echo "--- Memulai setup di dalam Ubuntu ---"
 apt update -y && apt upgrade -y
 
-# 1. Install System Dependencies
-echo "Menginstal dependencies sistem..."
+# Install Python dan dependencies sistem
 apt install -y python3 python3-pip python3-venv python3-full git wget \
                libnss3 libatk1.0-0 libx11-xcb1 \
                libxcomposite1 libxdamage1 libxrandr2 \
                libgbm1 libasound2t64 fonts-liberation
 
-# 2. Setup Virtual Environment
-echo "Membuat Virtual Environment..."
+# Setup Virtual Environment
+cd ~
 rm -rf ~/venv
 python3 -m venv ~/venv
 source ~/venv/bin/activate
 
-# 3. Upgrade Pip
-pip install --upgrade pip
-
-# 4. Clone Project
-cd ~
+# Clone Repo
 if [ ! -d "logam-mulia-scrapper" ]; then
-    echo "Cloning repository..."
     git clone https://github.com/ganiarto/logam-mulia-scrapper.git
 fi
-cd logam-mulia-scrapper
 
-# 5. Install Requirements
+# Install Python Libraries
+cd ~/logam-mulia-scrapper
+pip install --upgrade pip
 if [ -f "requirements.txt" ]; then
-    echo "Menginstal dependencies dari requirements.txt..."
     pip install -r requirements.txt
-    # Pastikan fastapi & uvicorn ada untuk running server
-    pip install fastapi uvicorn 
-else
-    echo "requirements.txt tidak ditemukan, menginstal library standar..."
-    pip install scrapy scrapy-playwright fastapi uvicorn
 fi
+pip install scrapy-playwright fastapi uvicorn
 
-# 6. Install Playwright Browser
-echo "Menginstal browser Playwright..."
+# Install Browser Playwright
 playwright install chromium
 
-echo ""
 echo "-------------------------------------------------------"
-echo "✅ SETUP SELESAI!"
+echo "✅ SETUP DI DALAM UBUNTU BERHASIL!"
 echo "-------------------------------------------------------"
-echo "Untuk menjalankan API Server, ikuti langkah ini:"
-echo "1. Masuk ke folder project:"
-echo "   cd ~/logam-mulia-scrapper"
-echo ""
-echo "2. Jalankan perintah server:"
-echo "   uvicorn api:app --host 0.0.0.0 --port 8100"
-echo ""
-echo "3. Akses API melalui browser HP kamu di:"
-echo "   http://localhost:8100"
+echo "Cara menjalankan server:"
+echo "1. proot-distro login ubuntu"
+echo "2. source ~/venv/bin/activate"
+echo "3. cd ~/logam-mulia-scrapper"
+echo "4. uvicorn api:app --host 0.0.0.0 --port 8100"
 echo "-------------------------------------------------------"
+EOF
+
+# 4. Masukkan script setup tadi ke dalam Ubuntu VM
+echo "Menyalin script ke dalam Ubuntu..."
+mv setup_ubuntu_internal.sh $PREFIX/var/lib/proot-distro/installed-rootfs/ubuntu/root/
+
+# 5. Jalankan script setup tersebut DARI DALAM Ubuntu secara otomatis
+echo "Menjalankan installer di dalam Ubuntu VM (Mohon tunggu...)"
+proot-distro login ubuntu -- bash /root/setup_ubuntu_internal.sh
