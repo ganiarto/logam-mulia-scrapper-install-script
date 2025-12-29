@@ -5,13 +5,10 @@
 pkg update -y && pkg upgrade -y
 pkg install -y proot-distro wget tar git
 
-# 2️⃣ Pilih versi Ubuntu
-UBUNTU_VERSION="22.04"
-
-echo "Menginstal Ubuntu $UBUNTU_VERSION..."
-proot-distro install ubuntu-$UBUNTU_VERSION
-echo "Ubuntu $UBUNTU_VERSION siap! Masuk dengan:"
-echo "proot-distro login ubuntu-$UBUNTU_VERSION"
+echo "Menginstal Ubuntu"
+proot-distro install ubuntu
+echo "Ubuntu siap! Masuk dengan:"
+echo "proot-distro login ubuntu"
 
 # 3️⃣ Buat script setup di Ubuntu
 cat << 'EOF' > setup_ubuntu_scraper.sh
